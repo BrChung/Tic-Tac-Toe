@@ -22,10 +22,10 @@ export class BoardComponent implements OnInit {
   newGame(): void {
     this.squares = Array(9).fill(null);
     this.winner = null;
-    this.xIsNext = true;
+    this.xIsNext = Boolean(Math.round(Math.random())); //X or O start random
     this.gameOver = false;
     this.draw = false;
-    this.winningLine = [...Array(9).keys()];
+    this.winningLine = [...Array(9).keys()]; //Fills array from 0-8
   }
 
   get player(): string {
