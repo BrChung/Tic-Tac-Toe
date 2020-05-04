@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "tictactoe-duel": {
+      "hosting": {
+        "tictactoe": [
+          "tictactoe-duel"
+        ]
+      }
+    }
+  }
+}

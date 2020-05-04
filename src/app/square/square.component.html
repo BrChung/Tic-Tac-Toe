@@ -1,0 +1,5 @@
+<button nbButton *ngIf="!state" [disabled]="gameOver">
+  {{ state }}
+</button>
+<button nbButton hero status="success" *ngIf="state == 'X'">{{ state }}</button>
+<button nbButton hero status="info" *ngIf="state == 'O'">{{ state }}</button>
