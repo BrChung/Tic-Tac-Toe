@@ -1,0 +1,12 @@
+<div *ngIf="!(afAuth.authState | async)">
+  <button nbButton (click)="googleSignIn()">
+    <img src="/assets/google-logo.svg" /> &nbsp; &nbsp; Login with Google
+  </button>
+</div>
+
+<div *ngIf="afAuth.authState | async as user">
+  <img class="avatar" [src]="user.photoURL || 'assets/default-user.svg'" />
+  <strong>{{ user.displayName }}</strong>
+
+  <button nbButton (click)="afAuth.signOut()">Logout</button>
+</div>

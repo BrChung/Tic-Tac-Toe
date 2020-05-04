@@ -8,9 +8,14 @@ import { BoardComponent } from "./board/board.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { NbThemeModule, NbLayoutModule, NbButtonModule } from "@nebular/theme";
 import { NbEvaIconsModule } from "@nebular/eva-icons";
+import { UserComponent } from "./user/user.component";
+import { AngularFireModule } from "@angular/fire";
+import { AngularFirestoreModule } from "@angular/fire/firestore";
+import { AngularFireAuthModule } from "@angular/fire/auth";
+import { environment } from "../environments/environment";
 
 @NgModule({
-  declarations: [AppComponent, SquareComponent, BoardComponent],
+  declarations: [AppComponent, SquareComponent, BoardComponent, UserComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -19,6 +24,9 @@ import { NbEvaIconsModule } from "@nebular/eva-icons";
     NbLayoutModule,
     NbEvaIconsModule,
     NbButtonModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireAuthModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
