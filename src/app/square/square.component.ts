@@ -8,6 +8,7 @@ import { Component, Input } from "@angular/core";
 export class SquareComponent {
   @Input() state: "X" | "O";
   @Input() gameOver: boolean;
+  @Input() highlight: boolean;
   constructor() {}
 
   ngOnInit(): void {}

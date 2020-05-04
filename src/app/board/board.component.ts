@@ -11,6 +11,7 @@ export class BoardComponent implements OnInit {
   winner: string;
   draw: boolean;
   gameOver: boolean;
+  winningLine: any[];
 
   constructor() {}
 
@@ -23,6 +24,8 @@ export class BoardComponent implements OnInit {
     this.winner = null;
     this.xIsNext = true;
     this.gameOver = false;
+    this.draw = false;
+    this.winningLine = [...Array(9).keys()];
   }
 
   get player(): string {
@@ -60,6 +63,7 @@ export class BoardComponent implements OnInit {
         this.squares[a] === this.squares[b] &&
         this.squares[a] === this.squares[c]
       ) {
+        this.winningLine = [a, b, c];
         return this.squares[a];
       }
     }

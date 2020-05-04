@@ -1,7 +1,7 @@
 main {
   display: grid;
   grid-template-columns: 200px 200px 200px;
-  grid-gap: 0px;
+  grid-gap: 5px;
 }
 app-square {
   border: 1px gray solid;

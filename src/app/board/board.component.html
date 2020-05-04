@@ -12,6 +12,7 @@
     *ngFor="let state of squares; let i = index"
     [state]="state"
     [gameOver]="gameOver"
+    [highlight]="winningLine.includes(i)"
     (click)="takeTurn(i)"
   >
   </app-square>
