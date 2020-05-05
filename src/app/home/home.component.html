@@ -13,7 +13,15 @@
         >
           <nb-icon icon="people-outline"></nb-icon>Local Multiplayer
         </button>
-        <button class="menuButton" nbButton fullWidth outline status="info">
+        <button
+          class="menuButton"
+          nbButton
+          fullWidth
+          outline
+          status="info"
+          [routerLink]="['/online']"
+          [disabled]="!networkAvailable"
+        >
           <nb-icon icon="radio-outline"></nb-icon>Online Multiplayer
         </button>
       </div>

@@ -22,6 +22,8 @@ import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAuthModule } from "@angular/fire/auth";
 import { environment } from "../environments/environment";
 import { HomeComponent } from "./home/home.component";
+import { OnlineGamesComponent } from './online-games/online-games.component';
+import { OnlineTictactoeComponent } from './online-tictactoe/online-tictactoe.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,8 @@ import { HomeComponent } from "./home/home.component";
     BoardComponent,
     UserComponent,
     HomeComponent,
+    OnlineGamesComponent,
+    OnlineTictactoeComponent,
   ],
   imports: [
     BrowserModule,

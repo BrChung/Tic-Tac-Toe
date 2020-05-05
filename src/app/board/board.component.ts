@@ -30,6 +30,7 @@ export class BoardComponent implements OnInit {
   constructor(private toastrService: NbToastrService) {}
 
   ngOnInit(): void {
+    this.innerWidth = window.innerWidth;
     this.newGame();
   }
 

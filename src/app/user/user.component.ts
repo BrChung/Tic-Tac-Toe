@@ -21,7 +21,9 @@ export class UserComponent implements OnInit {
 
   constructor(public afAuth: AngularFireAuth, private afs: AngularFirestore) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.innerWidth = window.innerWidth;
+  }
 
   async googleSignIn() {
     const provider = new firebase.auth.GoogleAuthProvider();
