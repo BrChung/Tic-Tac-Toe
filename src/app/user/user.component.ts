@@ -4,6 +4,7 @@ import {
   AngularFirestore,
   AngularFirestoreDocument,
 } from "@angular/fire/firestore";
+import { Router } from "@angular/router";
 import { User } from "../models/user";
 import * as firebase from "firebase/app";
 
@@ -19,7 +20,11 @@ export class UserComponent implements OnInit {
   }
   innerWidth: number;
 
-  constructor(public afAuth: AngularFireAuth, private afs: AngularFirestore) {}
+  constructor(
+    private router: Router,
+    public afAuth: AngularFireAuth,
+    private afs: AngularFirestore
+  ) {}
 
   ngOnInit(): void {
     this.innerWidth = window.innerWidth;
@@ -45,5 +50,10 @@ export class UserComponent implements OnInit {
     };
 
     return userRef.set(data, { merge: true });
+  }
+
+  async logout() {
+    await this.afAuth.signOut();
+    this.router.navigate([""]);
   }
 }

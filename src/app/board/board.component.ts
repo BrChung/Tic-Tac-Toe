@@ -7,6 +7,7 @@ import { NbToastrService } from "@nebular/theme";
   styleUrls: ["./board.component.scss"],
 })
 export class BoardComponent implements OnInit {
+  // Credit: https://stackoverflow.com/questions/45350716/detect-window-size-using-angular-4
   @HostListener("window:resize", ["$event"])
   onResize(event) {
     this.innerWidth = event.target.innerWidth;

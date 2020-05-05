@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
+import { AngularFireAuth } from "@angular/fire/auth";
 import { Observable, Observer, fromEvent, merge, Subscription } from "rxjs";
 import { map } from "rxjs/operators";
 
@@ -11,7 +12,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   networkSub: Subscription;
   networkAvailable: boolean;
 
-  constructor() {}
+  constructor(public afAuth: AngularFireAuth) {}
 
   ngOnInit(): void {
     this.networkSub = this.createOnline$().subscribe((isOnline) => {
@@ -23,6 +24,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.networkSub.unsubscribe();
   }
 
+  // Credit: https://stackoverflow.com/questions/46598777/check-internet-connection-in-web-using-angular-4
   createOnline$() {
     return merge<boolean>(
       fromEvent(window, "offline").pipe(map(() => false)),

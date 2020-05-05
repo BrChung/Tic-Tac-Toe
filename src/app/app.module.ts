@@ -14,7 +14,11 @@ import {
   NbIconModule,
   NbCardModule,
   NbToastrModule,
+  NbTabsetModule,
+  NbInputModule,
+  NbFormFieldModule,
 } from "@nebular/theme";
+import { FormsModule } from "@angular/forms";
 import { NbEvaIconsModule } from "@nebular/eva-icons";
 import { UserComponent } from "./user/user.component";
 import { AngularFireModule } from "@angular/fire";
@@ -22,8 +26,8 @@ import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAuthModule } from "@angular/fire/auth";
 import { environment } from "../environments/environment";
 import { HomeComponent } from "./home/home.component";
-import { OnlineGamesComponent } from './online-games/online-games.component';
-import { OnlineTictactoeComponent } from './online-tictactoe/online-tictactoe.component';
+import { OnlineGamesComponent } from "./online-games/online-games.component";
+import { OnlineTictactoeComponent } from "./online-tictactoe/online-tictactoe.component";
 
 @NgModule({
   declarations: [
@@ -47,6 +51,10 @@ import { OnlineTictactoeComponent } from './online-tictactoe/online-tictactoe.co
     NbUserModule,
     NbIconModule,
     NbCardModule,
+    NbTabsetModule,
+    NbInputModule,
+    FormsModule,
+    NbFormFieldModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,

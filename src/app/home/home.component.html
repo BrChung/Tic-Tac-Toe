@@ -20,7 +20,7 @@
           outline
           status="info"
           [routerLink]="['/online']"
-          [disabled]="!networkAvailable"
+          [disabled]="!networkAvailable || !(afAuth.authState | async)"
         >
           <nb-icon icon="radio-outline"></nb-icon>Online Multiplayer
         </button>
