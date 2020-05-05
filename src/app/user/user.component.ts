@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, HostListener } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
   AngularFirestore,
@@ -13,6 +13,12 @@ import * as firebase from "firebase/app";
   styleUrls: ["./user.component.scss"],
 })
 export class UserComponent implements OnInit {
+  @HostListener("window:resize", ["$event"])
+  onResize(event) {
+    this.innerWidth = event.target.innerWidth;
+  }
+  innerWidth: number;
+
   constructor(public afAuth: AngularFireAuth, private afs: AngularFirestore) {}
 
   ngOnInit(): void {}

@@ -1,12 +1,47 @@
 <div *ngIf="!(afAuth.authState | async)">
-  <button nbButton (click)="googleSignIn()">
+  <button *ngIf="innerWidth > 460" nbButton (click)="googleSignIn()">
     <img src="/assets/google-logo.svg" /> &nbsp; &nbsp; Login with Google
+  </button>
+  <button
+    *ngIf="innerWidth <= 460"
+    size="small"
+    nbButton
+    (click)="googleSignIn()"
+  >
+    <img src="/assets/google-logo.svg" /> &nbsp; Login
   </button>
 </div>
 
-<div *ngIf="afAuth.authState | async as user">
-  <img class="avatar" [src]="user.photoURL || 'assets/default-user.svg'" />
-  <strong>{{ user.displayName }}</strong>
+<div *ngIf="afAuth.authState | async as user" class="loggedIn">
+  <nb-user
+    *ngIf="innerWidth > 700"
+    size="large"
+    [name]="user.displayName"
+    [title]="user.email"
+    [picture]="user.photoURL || null"
+    class="avatar"
+  >
+  </nb-user>
 
-  <button nbButton (click)="afAuth.signOut()">Logout</button>
+  <nb-user
+    *ngIf="innerWidth <= 700"
+    size="large"
+    [name]="user.displayName"
+    [title]="user.email"
+    [picture]="user.photoURL || null"
+    class="avatar"
+    onlyPicture
+  >
+  </nb-user>
+
+  <button
+    nbButton
+    outline
+    size="medium"
+    status="warning"
+    (click)="afAuth.signOut()"
+    class="logoutButton"
+  >
+    <nb-icon icon="log-out-outline"></nb-icon>
+  </button>
 </div>

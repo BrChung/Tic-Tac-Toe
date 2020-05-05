@@ -1,19 +1,71 @@
-<h1>Current Player: {{ player }}</h1>
-
-<button nbButton outline status="danger" (click)="newGame()">
-  Start new Game
-</button>
-
-<h2 *ngIf="winner">Player {{ winner }} won the game!</h2>
-<h2 *ngIf="draw">It's a draw!</h2>
-
-<main>
-  <app-square
-    *ngFor="let state of squares; let i = index"
-    [state]="state"
-    [gameOver]="gameOver"
-    [highlight]="winningLine.includes(i)"
-    (click)="takeTurn(i)"
-  >
-  </app-square>
-</main>
+<nb-card>
+  <nb-card-header>
+    <div class="boardHeader">
+      <div class="playerAvatarLeft" [ngClass]="{ fade: xIsNext }">
+        <nb-user
+          name="Player 1"
+          onlyPicture
+          badgeStatus="success"
+          size="giant"
+          badgeText="X"
+          badgePosition="bottom end"
+        ></nb-user>
+        <div class="playerText">
+          <span *ngIf="innerWidth >= 600">Player 1</span>
+          <span>{{ gamesXWon }}</span>
+        </div>
+      </div>
+      <div>
+        <button
+          *ngIf="innerWidth >= 600"
+          nbButton
+          outline
+          status="danger"
+          (click)="newGame()"
+          [disabled]="!gameOver"
+        >
+          New Game
+        </button>
+        <button
+          *ngIf="innerWidth < 600"
+          nbButton
+          size="small"
+          outline
+          status="danger"
+          (click)="newGame()"
+          [disabled]="!gameOver"
+        >
+          New Game
+        </button>
+      </div>
+      <div class="playerAvatarRight" [ngClass]="{ fade: !xIsNext }">
+        <div class="playerTextRight">
+          <span *ngIf="innerWidth >= 600">Player 2</span>
+          <span>{{ gamesOWon }}</span>
+        </div>
+        <nb-user
+          name="Player 2"
+          onlyPicture
+          badgeStatus="info"
+          size="giant"
+          badgeText="O"
+          badgePosition="bottom start"
+        ></nb-user>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="game">
+      <div class="board">
+        <app-square
+          *ngFor="let state of squares; let i = index"
+          [state]="state"
+          [gameOver]="gameOver"
+          [highlight]="winningLine.includes(i)"
+          (click)="takeTurn(i)"
+        >
+        </app-square>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

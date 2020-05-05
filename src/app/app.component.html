@@ -1,11 +1,13 @@
 <nb-layout>
   <nb-layout-header fixed>
     <!-- Insert header here -->
-    <app-user></app-user>
+    <div class="header">
+      <div><h1>TicTacToe</h1></div>
+      <div><app-user></app-user></div>
+    </div>
   </nb-layout-header>
 
   <nb-layout-column>
-    <app-board></app-board>
     <router-outlet></router-outlet>
   </nb-layout-column>
 

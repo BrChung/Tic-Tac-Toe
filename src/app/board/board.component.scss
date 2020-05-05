@@ -1,10 +1,101 @@
-main {
+app-square {
+  border: 1px gray solid;
+  height: 200px;
+}
+
+.game {
+  display: flex;
+  justify-content: center;
+}
+
+.board {
   display: grid;
   grid-template-columns: 200px 200px 200px;
   grid-gap: 5px;
 }
 
-app-square {
-  border: 1px gray solid;
-  height: 200px;
+.fade {
+  opacity: 20%;
+}
+
+.boardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.playerAvatarLeft {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.playerAvatarRight {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.playerText {
+  display: flex;
+  flex-direction: column;
+  padding-left: 5px;
+}
+
+.playerTextRight {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  padding-right: 15px;
+}
+
+@media only screen and (max-width: 700px) {
+  .board {
+    display: grid;
+    grid-template-columns: 150px 150px 150px;
+    grid-gap: 5px;
+  }
+  app-square {
+    border: 1px gray solid;
+    height: 150px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .playerAvatarLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .playerAvatarRight {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+
+  .playerText {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .playerTextRight {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+}
+
+@media only screen and (max-width: 530px) {
+  .board {
+    display: grid;
+    grid-template-columns: 100px 100px 100px;
+    grid-gap: 5px;
+  }
+  app-square {
+    border: 1px gray solid;
+    height: 100px;
+  }
 }

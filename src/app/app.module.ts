@@ -6,24 +6,43 @@ import { AppComponent } from "./app.component";
 import { SquareComponent } from "./square/square.component";
 import { BoardComponent } from "./board/board.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { NbThemeModule, NbLayoutModule, NbButtonModule } from "@nebular/theme";
+import {
+  NbThemeModule,
+  NbLayoutModule,
+  NbButtonModule,
+  NbUserModule,
+  NbIconModule,
+  NbCardModule,
+  NbToastrModule,
+} from "@nebular/theme";
 import { NbEvaIconsModule } from "@nebular/eva-icons";
 import { UserComponent } from "./user/user.component";
 import { AngularFireModule } from "@angular/fire";
 import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAuthModule } from "@angular/fire/auth";
 import { environment } from "../environments/environment";
+import { HomeComponent } from "./home/home.component";
 
 @NgModule({
-  declarations: [AppComponent, SquareComponent, BoardComponent, UserComponent],
+  declarations: [
+    AppComponent,
+    SquareComponent,
+    BoardComponent,
+    UserComponent,
+    HomeComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     NbThemeModule.forRoot({ name: "dark" }),
+    NbToastrModule.forRoot(),
     NbLayoutModule,
     NbEvaIconsModule,
     NbButtonModule,
+    NbUserModule,
+    NbIconModule,
+    NbCardModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AngularFireAuthModule,

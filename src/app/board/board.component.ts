@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, HostListener } from "@angular/core";
+import { NbToastrService } from "@nebular/theme";
 
 @Component({
   selector: "app-board",
@@ -6,14 +7,27 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./board.component.scss"],
 })
 export class BoardComponent implements OnInit {
+  @HostListener("window:resize", ["$event"])
+  onResize(event) {
+    this.innerWidth = event.target.innerWidth;
+  }
+  innerWidth: number;
+
+  // Game State
   squares: any[];
   xIsNext: boolean;
+  xCounter: number = 0;
+  oCounter: number = 0;
+
+  // Front End
   winner: string;
   draw: boolean;
   gameOver: boolean;
   winningLine: any[];
+  gamesXWon: string;
+  gamesOWon: string;
 
-  constructor() {}
+  constructor(private toastrService: NbToastrService) {}
 
   ngOnInit(): void {
     this.newGame();
@@ -40,6 +54,19 @@ export class BoardComponent implements OnInit {
 
     this.winner = this.calculateWinner();
     this.draw = this.checkDraw();
+    if (this.winner === "X") {
+      this.showToast("", "Player 1 Won", "bottom-start", "success");
+      this.xCounter++;
+      this.gamesXWon = "👑 ".concat(String(this.xCounter));
+    } else if (this.winner === "O") {
+      this.showToast("", "Player 2 Won", "bottom-end", "info");
+      this.oCounter++;
+      this.gamesOWon = "👑 ".concat(String(this.oCounter));
+    }
+    if (this.draw) {
+      this.showToast("", "It's a Draw!", "bottom-end", "warning");
+      this.winningLine = [];
+    }
     if (this.winner || this.draw) {
       this.gameOver = true;
     }
@@ -81,5 +108,13 @@ export class BoardComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  showToast(message: string, title: string, position: any, status: any) {
+    this.toastrService.show(message, title, {
+      position,
+      status,
+      icon: "heart",
+    });
   }
 }
