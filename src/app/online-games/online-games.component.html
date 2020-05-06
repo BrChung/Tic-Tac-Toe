@@ -1,15 +1,49 @@
 <nb-card>
   <nb-card-body>
     <div *ngIf="afAuth.authState | async">
-      <nb-tabset>
+      <nb-tabset (changeTab)="getActiveGames()">
         <nb-tab tabTitle="Active Games">
-          <p>List of <strong>users</strong>.</p>
+          <nb-card>
+            <nb-card-header>
+              Games Created
+            </nb-card-header>
+            <nb-list>
+              <nb-list-item *ngFor="let game of gamesCreated">
+                {{ game | json }}
+              </nb-list-item>
+            </nb-list>
+          </nb-card>
         </nb-tab>
         <nb-tab tabTitle="Create New Game">
-          <nb-form-field>
-            <nb-icon nbPrefix icon="google"></nb-icon>
-            <input type="email" nbInput placeholder="Email Address" />
-          </nb-form-field>
+          <form [formGroup]="emailForm" (ngSubmit)="submitHandler()">
+            <nb-form-field>
+              <nb-icon nbPrefix icon="google"></nb-icon>
+              <input
+                type="email"
+                nbInput
+                placeholder="Email Address"
+                formControlName="email"
+                [status]="
+                  email.dirty ? (email.valid ? 'success' : 'danger') : 'basic'
+                "
+              />
+            </nb-form-field>
+            <div *ngIf="email.valid">Player found! Create a game!</div>
+            <div *ngIf="email.invalid && email.dirty && !email.errors.email">
+              Player does not exist. Ask them to sign up!
+            </div>
+            <div *ngIf="email.pending">
+              Checking to see if {{ email.value }} exists...
+            </div>
+            <button
+              nbButton
+              type="submit"
+              [disabled]="emailForm.invalid || email.pending"
+              status="danger"
+            >
+              Create Game
+            </button>
+          </form>
         </nb-tab>
       </nb-tabset>
     </div>

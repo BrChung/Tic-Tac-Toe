@@ -47,6 +47,9 @@ export class UserComponent implements OnInit {
       email,
       displayName,
       photoURL,
+      roles: {
+        default: true,
+      },
     };
 
     return userRef.set(data, { merge: true });
