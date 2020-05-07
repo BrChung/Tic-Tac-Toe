@@ -1,19 +1,12 @@
 {
-  "hosting": [
-    {
-      "target": "tictactoe",
-      "public": "dist/tictactoe",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
-    }
-  ]
+  "hosting": {
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "public": "dist/tictactoe",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  }
 }
