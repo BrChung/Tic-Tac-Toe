@@ -1,1 +1,91 @@
-<p>online-tictactoe works!</p>
+<div *ngIf="afAuth.authState | async as user">
+  <nb-card>
+    <nb-card-header>
+      <div class="boardHeader">
+        <div class="playerAvatarLeft" [ngClass]="{ fade: xIsNext }">
+          <nb-user
+            [name]="player1Name"
+            onlyPicture
+            [picture]="player1ImgURL || null"
+            badgeStatus="success"
+            size="giant"
+            badgeText="X"
+            badgePosition="bottom end"
+          ></nb-user>
+          <div class="playerText">
+            <span *ngIf="innerWidth >= 600">{{ player1Name }}</span>
+            <span>{{ gamesXWon }}</span>
+          </div>
+        </div>
+        <div>
+          <button
+            *ngIf="innerWidth >= 600"
+            nbButton
+            outline
+            status="danger"
+            (click)="newGame()"
+            [disabled]="
+              !gameOver || (user.uid !== player1UID && user.uid !== player2UID)
+                ? true
+                : false
+            "
+          >
+            New Game
+          </button>
+          <button
+            *ngIf="innerWidth < 600"
+            nbButton
+            size="small"
+            outline
+            status="danger"
+            (click)="newGame()"
+            [disabled]="
+              !gameOver || (user.uid !== player1UID && user.uid !== player2UID)
+                ? true
+                : false
+            "
+          >
+            New Game
+          </button>
+        </div>
+        <div class="playerAvatarRight" [ngClass]="{ fade: !xIsNext }">
+          <div class="playerTextRight">
+            <span *ngIf="innerWidth >= 600"> {{ player2Name }}</span>
+            <span>{{ gamesOWon }}</span>
+          </div>
+          <nb-user
+            [name]="player2Name"
+            onlyPicture
+            [picture]="player2ImgURL || null"
+            badgeStatus="info"
+            size="giant"
+            badgeText="O"
+            badgePosition="bottom start"
+          ></nb-user>
+        </div>
+      </div>
+    </nb-card-header>
+    <nb-card-body>
+      <div class="game">
+        <div class="board">
+          <app-square
+            *ngFor="let state of squares; let i = index"
+            [state]="state"
+            [gameOver]="
+              gameOver || player1UID == user.uid
+                ? xIsNext
+                : false || player2UID == user.uid
+                ? !xIsNext
+                : false || (user.uid !== player1UID && user.uid !== player2UID)
+                ? true
+                : false
+            "
+            [highlight]="winningLine.includes(i)"
+            (click)="takeTurn(i)"
+          >
+          </app-square>
+        </div>
+      </div>
+    </nb-card-body>
+  </nb-card>
+</div>

@@ -52,25 +52,25 @@ export class BoardComponent implements OnInit {
     if (!this.squares[index]) {
       this.squares.splice(index, 1, this.player);
       this.xIsNext = !this.xIsNext;
-    }
 
-    this.winner = this.calculateWinner();
-    this.draw = this.checkDraw();
-    if (this.winner === "X") {
-      this.showToast("", "Player 1 Won", "bottom-start", "success");
-      this.xCounter++;
-      this.gamesXWon = "👑 ".concat(String(this.xCounter));
-    } else if (this.winner === "O") {
-      this.showToast("", "Player 2 Won", "bottom-end", "info");
-      this.oCounter++;
-      this.gamesOWon = "👑 ".concat(String(this.oCounter));
-    }
-    if (this.draw) {
-      this.showToast("", "It's a Draw!", "bottom-end", "warning");
-      this.winningLine = [];
-    }
-    if (this.winner || this.draw) {
-      this.gameOver = true;
+      this.winner = this.calculateWinner();
+      this.draw = this.checkDraw();
+      if (this.winner === "X") {
+        this.showToast("", "Player 1 Won", "bottom-start", "success");
+        this.xCounter++;
+        this.gamesXWon = "👑 ".concat(String(this.xCounter));
+      } else if (this.winner === "O") {
+        this.showToast("", "Player 2 Won", "bottom-end", "info");
+        this.oCounter++;
+        this.gamesOWon = "👑 ".concat(String(this.oCounter));
+      }
+      if (this.draw) {
+        this.showToast("", "It's a Draw!", "bottom-end", "warning");
+        this.winningLine = [];
+      }
+      if (this.winner || this.draw) {
+        this.gameOver = true;
+      }
     }
   }
 

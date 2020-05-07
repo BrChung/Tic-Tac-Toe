@@ -25,6 +25,7 @@ import {
 } from "@angular/forms";
 import { User } from "../models/user";
 import { Subscription } from "rxjs";
+import { Router } from "@angular/router";
 import { firestore } from "firebase/app";
 
 @Component({
@@ -38,10 +39,8 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
   player2: User;
   gamesCreated: any;
   gamesJoined: any;
-  player1Sub: Subscription;
-  player2Sub: Subscription;
-  gamesCreatedSub: Subscription;
-  gamesJoinedSub: Subscription;
+  private player1Sub: Subscription;
+  private player2Sub: Subscription;
   loadedData: boolean = false;
   profileImage = new Map();
 
@@ -49,7 +48,8 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     public afAuth: AngularFireAuth,
     private afs: AngularFirestore,
-    private db: AngularFireDatabase
+    private db: AngularFireDatabase,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -79,7 +79,7 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
           ref.orderByChild("player1").equalTo(currentUser.uid)
         )
         .snapshotChanges();
-      this.gamesCreatedSub = gamesCreatedQuery.subscribe(async (data) => {
+      gamesCreatedQuery.subscribe(async (data) => {
         data.forEach((entry) => {
           const uid = entry.payload.val()["player2"];
           if (!this.profileImage.has(uid)) {
@@ -160,11 +160,13 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
         const ticTacToeRef = this.db.list("tictactoe").push({
           player1: this.player1.uid,
           player2: this.player2.uid,
-          text: "this is just some dumb data",
-          board: [null, null, null, 5],
+          xIsNext: true,
+          xCounter: 0,
+          oCounter: 0,
+          gameOver: false,
         });
 
-        console.log((await ticTacToeRef).key);
+        this.router.navigate([`/tictactoe/${(await ticTacToeRef).key}`]);
       }
     }
   }
