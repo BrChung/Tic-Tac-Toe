@@ -1,32 +1,24 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, HostListener } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
   AngularFirestore,
   AngularFirestoreDocument,
 } from "@angular/fire/firestore";
 import { AngularFireDatabase } from "@angular/fire/database";
-import {
-  tap,
-  first,
-  map,
-  take,
-  debounceTime,
-  startWith,
-  flatMap,
-} from "rxjs/operators";
+import { map, take, debounceTime, flatMap } from "rxjs/operators";
 import {
   FormBuilder,
   FormGroup,
-  FormControl,
-  FormArray,
   Validators,
-  ValidationErrors,
   AbstractControl,
 } from "@angular/forms";
-import { User } from "../models/user";
+import { NbDialogService } from "@nebular/theme";
 import { Subscription } from "rxjs";
 import { Router } from "@angular/router";
 import { firestore } from "firebase/app";
+import { DeleteGameComponent } from "../delete-game/delete-game.component";
+import { GenericDialogueAlertComponent } from "../generic-dialogue-alert/generic-dialogue-alert.component";
+import { User } from "../models/user";
 
 @Component({
   selector: "app-online-games",
@@ -34,25 +26,35 @@ import { firestore } from "firebase/app";
   styleUrls: ["./online-games.component.scss"],
 })
 export class OnlineGamesComponent implements OnInit, OnDestroy {
+  @HostListener("window:resize", ["$event"])
+  onResize(event) {
+    this.innerWidth = event.target.innerWidth;
+  }
+  innerWidth: number;
+
   emailForm: FormGroup;
   player1: User;
   player2: User;
   gamesCreated: any;
+  gamesInvitedTo: any;
   gamesJoined: any;
   private player1Sub: Subscription;
   private player2Sub: Subscription;
   loadedData: boolean = false;
   profileImage = new Map();
+  profileDisplayName = new Map();
 
   constructor(
     private fb: FormBuilder,
     public afAuth: AngularFireAuth,
     private afs: AngularFirestore,
     private db: AngularFireDatabase,
-    private router: Router
+    private router: Router,
+    private dialogService: NbDialogService
   ) {}
 
   ngOnInit(): void {
+    this.innerWidth = window.innerWidth;
     this.emailForm = this.fb.group({
       email: [
         [],
@@ -63,8 +65,12 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.player1Sub.unsubscribe();
-    this.player2Sub.unsubscribe();
+    if (this.player1Sub) {
+      this.player1Sub.unsubscribe();
+    }
+    if (this.player2Sub) {
+      this.player2Sub.unsubscribe();
+    }
   }
 
   get email() {
@@ -84,6 +90,7 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
           const uid = entry.payload.val()["player2"];
           if (!this.profileImage.has(uid)) {
             this.profileImage.set(uid, null);
+            this.profileDisplayName.set(uid, null);
           }
         });
         const keys = Array.from(this.profileImage.keys());
@@ -102,6 +109,7 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
                 .pipe(take(1))
                 .subscribe((user) => {
                   this.profileImage.set(uid, user.photoURL);
+                  this.profileDisplayName.set(uid, user.displayName);
                   resolve();
                 });
             });
@@ -109,16 +117,67 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
         }
         this.gamesCreated = data;
       });
+      const gamesInvitedToQuery = this.db
+        .list("tictactoe", (ref) =>
+          ref.orderByChild("player2").equalTo(currentUser.uid)
+        )
+        .snapshotChanges();
+      gamesInvitedToQuery.subscribe(async (data) => {
+        data.forEach((entry) => {
+          const uid = entry.payload.val()["player1"];
+          if (!this.profileImage.has(uid)) {
+            this.profileImage.set(uid, null);
+            this.profileDisplayName.set(uid, null);
+          }
+        });
+        const keys = Array.from(this.profileImage.keys());
+        let lookUp = [];
+        keys.forEach((key) => {
+          if (!this.profileImage.get(key)) {
+            lookUp.push(key);
+          }
+        });
+        if (lookUp.length > 0) {
+          await new Promise((resolve) => {
+            lookUp.forEach((uid) => {
+              this.afs
+                .doc<User>(`users/${uid}`)
+                .valueChanges()
+                .pipe(take(1))
+                .subscribe((user) => {
+                  this.profileImage.set(uid, user.photoURL);
+                  let displayName = user.displayName;
+                  let length = 10;
+                  if (innerWidth > 500) {
+                    length = 20;
+                  }
+                  displayName =
+                    displayName.length > length
+                      ? displayName.substring(0, length - 3) + "..."
+                      : displayName;
+                  this.profileDisplayName.set(uid, displayName);
+
+                  resolve();
+                });
+            });
+          });
+        }
+        this.gamesInvitedTo = data;
+      });
     }
     this.loadedData = true;
   }
 
-  async submitHandler() {
+  async createGame() {
     const currentUser = await this.afAuth.currentUser;
     const player2Email = this.emailForm.value.email;
 
     if (this.emailForm.value.email === currentUser.email) {
-      console.log("Error! You cannot start a game with yourself");
+      this.dialogService.open(GenericDialogueAlertComponent, {
+        context: {
+          message: "You cannot start an online game with yourself silly!",
+        },
+      });
     } else {
       await new Promise((resolve) => {
         const player1Doc = this.afs
@@ -147,9 +206,14 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
       });
       if (
         (this.player1.createdGames >= 3 && !this.player1.roles.pro) ||
-        this.player1.createdGames >= 25
+        this.player1.createdGames >= 50
       ) {
-        console.log("error too many games");
+        this.dialogService.open(GenericDialogueAlertComponent, {
+          context: {
+            message:
+              "You have reached the available limit of how many games you can create. Limit is 3 for users and 50 for pro members. Other players may still invite you to games.",
+          },
+        });
       } else {
         const player1Ref: AngularFirestoreDocument<User> = this.afs.doc(
           `users/${this.player1.uid}`
@@ -160,7 +224,7 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
         const ticTacToeRef = this.db.list("tictactoe").push({
           player1: this.player1.uid,
           player2: this.player2.uid,
-          xIsNext: true,
+          xIsNext: false,
           xCounter: 0,
           oCounter: 0,
           gameOver: false,
@@ -169,6 +233,15 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
         this.router.navigate([`/tictactoe/${(await ticTacToeRef).key}`]);
       }
     }
+  }
+
+  deleteGameDialog(key: string, uid: string) {
+    this.dialogService.open(DeleteGameComponent, {
+      context: {
+        key: key,
+        uid: uid,
+      },
+    });
   }
 }
 

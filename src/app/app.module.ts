@@ -14,6 +14,7 @@ import {
   NbIconModule,
   NbCardModule,
   NbToastrModule,
+  NbDialogModule,
   NbTabsetModule,
   NbInputModule,
   NbFormFieldModule,
@@ -30,6 +31,8 @@ import { environment } from "../environments/environment";
 import { HomeComponent } from "./home/home.component";
 import { OnlineGamesComponent } from "./online-games/online-games.component";
 import { OnlineTictactoeComponent } from "./online-tictactoe/online-tictactoe.component";
+import { DeleteGameComponent } from './delete-game/delete-game.component';
+import { GenericDialogueAlertComponent } from './generic-dialogue-alert/generic-dialogue-alert.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +43,8 @@ import { OnlineTictactoeComponent } from "./online-tictactoe/online-tictactoe.co
     HomeComponent,
     OnlineGamesComponent,
     OnlineTictactoeComponent,
+    DeleteGameComponent,
+    GenericDialogueAlertComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,6 +52,7 @@ import { OnlineTictactoeComponent } from "./online-tictactoe/online-tictactoe.co
     BrowserAnimationsModule,
     NbThemeModule.forRoot({ name: "dark" }),
     NbToastrModule.forRoot(),
+    NbDialogModule.forRoot(),
     NbLayoutModule,
     NbEvaIconsModule,
     NbButtonModule,

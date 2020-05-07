@@ -1,0 +1,34 @@
+.cardContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.createGameField {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.emailField {
+  width: 230px;
+}
+
+.createGameButton {
+  height: 50px;
+}
+
+.activeGameCardContainer {
+  width: 350px;
+}
+
+.listItem {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media only screen and (max-width: 500px) {
+  .activeGameCardContainer {
+    width: 250px;
+  }
+}

@@ -1,0 +1,21 @@
+<nb-card>
+  <nb-card-header>
+    Alert!
+  </nb-card-header>
+  <nb-card-body>
+    {{ message }}
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="buttonContainer">
+      <button
+        class="dismissButton"
+        nbButton
+        hero
+        status="warning"
+        (click)="dismiss()"
+      >
+        Dismiss
+      </button>
+    </div>
+  </nb-card-footer>
+</nb-card>

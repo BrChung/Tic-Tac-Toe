@@ -1,0 +1,31 @@
+<nb-card>
+  <nb-card-header>
+    Delete Game
+  </nb-card-header>
+  <nb-card-body>
+    Are you sure you want to delete the game? All data and progress in the game
+    will be lost.
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="buttonContainer">
+      <button
+        class="dismissButton"
+        nbButton
+        hero
+        status="success"
+        (click)="dismiss()"
+      >
+        No, nevermind
+      </button>
+      <button
+        class="deleteButton"
+        nbButton
+        hero
+        status="danger"
+        (click)="deleteGame()"
+      >
+        Yes, Delete
+      </button>
+    </div>
+  </nb-card-footer>
+</nb-card>

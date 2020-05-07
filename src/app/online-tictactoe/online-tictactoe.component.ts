@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
-import { tap, take } from "rxjs/operators";
+import { take } from "rxjs/operators";
 import { AngularFireDatabase } from "@angular/fire/database";
 import { AngularFirestore } from "@angular/fire/firestore";
 import { NbToastrService } from "@nebular/theme";

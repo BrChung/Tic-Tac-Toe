@@ -1,51 +1,191 @@
-<nb-card>
-  <nb-card-body>
-    <div *ngIf="afAuth.authState | async">
-      <nb-tabset (changeTab)="getActiveGames()">
-        <nb-tab tabTitle="Active Games">
-          <nb-card>
-            <nb-card-header>
-              Games Created
-            </nb-card-header>
-            <nb-list>
-              <nb-list-item *ngFor="let game of gamesCreated">
-                {{ game | json }}
-              </nb-list-item>
-            </nb-list>
-          </nb-card>
-        </nb-tab>
-        <nb-tab tabTitle="Create New Game">
-          <form [formGroup]="emailForm" (ngSubmit)="submitHandler()">
-            <nb-form-field>
-              <nb-icon nbPrefix icon="google"></nb-icon>
-              <input
-                type="email"
-                nbInput
-                placeholder="Email Address"
-                formControlName="email"
-                [status]="
-                  email.dirty ? (email.valid ? 'success' : 'danger') : 'basic'
-                "
-              />
-            </nb-form-field>
-            <div *ngIf="email.valid">Player found! Create a game!</div>
-            <div *ngIf="email.invalid && email.dirty && !email.errors.email">
-              Player does not exist. Ask them to sign up!
+<div *ngIf="afAuth.authState | async as user" class="cardContainer">
+  <nb-card>
+    <nb-card-body>
+      <div *ngIf="afAuth.authState | async">
+        <nb-tabset fullWidth (changeTab)="getActiveGames()">
+          <nb-tab tabTitle="Active Games">
+            <div class="activeGameCardContainer">
+              <nb-card>
+                <nb-card-header>
+                  Games Created
+                </nb-card-header>
+                <nb-list>
+                  <nb-list-item *ngFor="let game of gamesCreated">
+                    <div class="listItem">
+                      <div *ngIf="innerWidth > 500">
+                        <button
+                          class="joinButton"
+                          nbButton
+                          size="small"
+                          outline
+                          [status]="
+                            game.payload.val().xIsNext ? 'info' : 'warning'
+                          "
+                          [routerLink]="['/tictactoe/' + game.key]"
+                        >
+                          <nb-user
+                            [picture]="
+                              profileImage.get(game.payload.val().player2)
+                            "
+                            [name]="
+                              profileDisplayName.get(game.payload.val().player2)
+                            "
+                            size="large"
+                            title="
+                      TicTacToe"
+                          ></nb-user>
+                        </button>
+                      </div>
+                      <div *ngIf="innerWidth <= 500">
+                        <button
+                          class="joinButton"
+                          nbButton
+                          size="small"
+                          outline
+                          [status]="
+                            game.payload.val().xIsNext ? 'info' : 'warning'
+                          "
+                          [routerLink]="['/tictactoe/' + game.key]"
+                        >
+                          <nb-user
+                            [picture]="
+                              profileImage.get(game.payload.val().player2)
+                            "
+                            [name]="
+                              profileDisplayName.get(game.payload.val().player2)
+                            "
+                            size="large"
+                            title="
+                      TicTacToe"
+                          ></nb-user>
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          class="deleteButton"
+                          nbButton
+                          outline
+                          status="danger"
+                          (click)="
+                            deleteGameDialog(
+                              game.key,
+                              game.payload.val().player1
+                            )
+                          "
+                        >
+                          <nb-icon icon="trash-2-outline"></nb-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </nb-list-item>
+                </nb-list>
+              </nb-card>
+              <nb-card>
+                <nb-card-header>
+                  Games Invited To
+                </nb-card-header>
+                <nb-list>
+                  <nb-list-item *ngFor="let game of gamesInvitedTo">
+                    <div class="listItem">
+                      <div *ngIf="innerWidth > 500">
+                        <button
+                          class="joinButton"
+                          nbButton
+                          size="small"
+                          outline
+                          [status]="
+                            game.payload.val().xIsNext ? 'warning' : 'info'
+                          "
+                          [routerLink]="['/tictactoe/' + game.key]"
+                        >
+                          <nb-user
+                            [picture]="
+                              profileImage.get(game.payload.val().player1)
+                            "
+                            [name]="
+                              profileDisplayName.get(game.payload.val().player1)
+                            "
+                            size="large"
+                            title="
+                      TicTacToe"
+                          ></nb-user>
+                        </button>
+                      </div>
+                      <div *ngIf="innerWidth <= 500">
+                        <button
+                          class="joinButton"
+                          nbButton
+                          size="small"
+                          outline
+                          [status]="
+                            game.payload.val().xIsNext ? 'warning' : 'info'
+                          "
+                          [routerLink]="['/tictactoe/' + game.key]"
+                        >
+                          <nb-user
+                            [picture]="
+                              profileImage.get(game.payload.val().player1)
+                            "
+                            [name]="
+                              profileDisplayName.get(game.payload.val().player1)
+                            "
+                            size="large"
+                            title="
+                      TicTacToe"
+                          ></nb-user>
+                        </button>
+                      </div>
+                    </div>
+                  </nb-list-item>
+                </nb-list>
+              </nb-card>
             </div>
-            <div *ngIf="email.pending">
-              Checking to see if {{ email.value }} exists...
-            </div>
-            <button
-              nbButton
-              type="submit"
-              [disabled]="emailForm.invalid || email.pending"
-              status="danger"
-            >
-              Create Game
-            </button>
-          </form>
-        </nb-tab>
-      </nb-tabset>
-    </div>
-  </nb-card-body>
-</nb-card>
+          </nb-tab>
+          <nb-tab tabTitle="Create New Game">
+            <form [formGroup]="emailForm" (ngSubmit)="createGame()">
+              <div class="createGameField">
+                <div class="emailField">
+                  <nb-form-field>
+                    <nb-icon nbPrefix icon="google"></nb-icon>
+                    <input
+                      type="email"
+                      nbInput
+                      placeholder="Email Address"
+                      formControlName="email"
+                      [status]="
+                        email.dirty
+                          ? email.valid
+                            ? 'success'
+                            : 'danger'
+                          : 'basic'
+                      "
+                    />
+                  </nb-form-field>
+                  <div *ngIf="email.valid">Player found! Create a game!</div>
+                  <div
+                    *ngIf="email.invalid && email.dirty && !email.errors.email"
+                  >
+                    Player does not exist. Ask them to sign up!
+                  </div>
+                  <div *ngIf="email.pending">
+                    Checking to see if {{ email.value }} exists...
+                  </div>
+                </div>
+                <div class="createGameButton">
+                  <button
+                    nbButton
+                    type="submit"
+                    [disabled]="emailForm.invalid || email.pending"
+                    status="danger"
+                  >
+                    Create
+                  </button>
+                </div>
+              </div>
+            </form>
+          </nb-tab>
+        </nb-tabset>
+      </div>
+    </nb-card-body>
+  </nb-card>
+</div>
