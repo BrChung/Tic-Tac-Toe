@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from "@angular/core";
+import { Component, OnInit, HostListener } from "@angular/core";
 import { AngularFireAuth } from "@angular/fire/auth";
 import {
   AngularFirestore,
@@ -13,19 +13,20 @@ import {
   AbstractControl,
 } from "@angular/forms";
 import { NbDialogService } from "@nebular/theme";
-import { Subscription, Observable, of, combineLatest } from "rxjs";
+import { Observable, of, combineLatest } from "rxjs";
 import { Router } from "@angular/router";
 import { firestore } from "firebase/app";
 import { DeleteGameComponent } from "../delete-game/delete-game.component";
 import { GenericDialogueAlertComponent } from "../generic-dialogue-alert/generic-dialogue-alert.component";
 import { User } from "../models/user";
+import { promise } from "protractor";
 
 @Component({
   selector: "app-online-games",
   templateUrl: "./online-games.component.html",
   styleUrls: ["./online-games.component.scss"],
 })
-export class OnlineGamesComponent implements OnInit, OnDestroy {
+export class OnlineGamesComponent implements OnInit {
   @HostListener("window:resize", ["$event"])
   onResize(event) {
     this.innerWidth = event.target.innerWidth;
@@ -33,10 +34,6 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
   innerWidth: number;
 
   emailForm: FormGroup;
-  player1: User;
-  player2: User;
-  private player1Sub: Subscription;
-  private player2Sub: Subscription;
   loadedData: boolean = false;
 
   gamesCreated$: Observable<any>;
@@ -60,15 +57,6 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
         EmailValidator.Email(this.afs),
       ],
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.player1Sub) {
-      this.player1Sub.unsubscribe();
-    }
-    if (this.player2Sub) {
-      this.player2Sub.unsubscribe();
-    }
   }
 
   get email() {
@@ -121,70 +109,65 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
     );
   }
 
+  getUserPromise(email: string) {
+    return this.afs
+      .collection<User>("users", (ref) =>
+        ref.where("email", "==", email).limit(1)
+      )
+      .valueChanges()
+      .pipe(
+        take(1),
+        flatMap((users) => users)
+      )
+      .toPromise();
+  }
+
   async createGame() {
     const currentUser = await this.afAuth.currentUser;
-    const player2Email = this.emailForm.value.email;
-
-    if (this.emailForm.value.email === currentUser.email) {
-      this.dialogService.open(GenericDialogueAlertComponent, {
+    const invitee = this.emailForm.value.email;
+    if (invitee === currentUser.email)
+      return this.dialogService.open(GenericDialogueAlertComponent, {
         context: {
           message: "You cannot start an online game with yourself silly!",
         },
       });
-    } else {
-      await new Promise((resolve) => {
-        const player1Doc = this.afs
-          .collection<User>("users", (ref) =>
-            ref.where("email", "==", currentUser.email).limit(1)
-          )
-          .valueChanges()
-          .pipe(flatMap((users) => users));
-        this.player1Sub = player1Doc.subscribe((data) => {
-          this.player1 = data;
-          resolve();
-        });
-      });
-      await new Promise((resolve) => {
-        const player2Doc = this.afs
-          .collection<User>("users", (ref) =>
-            ref.where("email", "==", player2Email).limit(1)
-          )
-          .valueChanges()
-          .pipe(flatMap((users) => users));
 
-        this.player2Sub = player2Doc.subscribe((data) => {
-          this.player2 = data;
-          resolve();
-        });
-      });
-      if (
-        (this.player1.createdGames >= 3 && !this.player1.roles.pro) ||
-        this.player1.createdGames >= 50
-      ) {
-        this.dialogService.open(GenericDialogueAlertComponent, {
+    try {
+      const p1Promise = this.getUserPromise(currentUser.email);
+      const p2Promise = this.getUserPromise(invitee);
+      const [p1, p2] = await Promise.all([p1Promise, p2Promise]);
+      if (p1.createdGames >= 3 && !p1.roles.pro)
+        return this.dialogService.open(GenericDialogueAlertComponent, {
           context: {
             message:
-              "You have reached the available limit of how many games you can create. Limit is 3 for users and 50 for pro members. Other players may still invite you to games.",
+              "You have reached the available limit of how many games you can create. Limit is 3 for users, upgrade to pro membership to create more games. Other players may still invite you to games.",
           },
         });
-      } else {
-        const player1Ref: AngularFirestoreDocument<User> = this.afs.doc(
-          `users/${this.player1.uid}`
-        );
-        const increment = firestore.FieldValue.increment(1);
-        player1Ref.update({ createdGames: increment });
-
-        const ticTacToeRef = this.db.list("tictactoe").push({
-          player1: this.player1.uid,
-          player2: this.player2.uid,
-          xIsNext: false,
-          xCounter: 0,
-          oCounter: 0,
-          gameOver: false,
+      if (p1.createdGames >= 50)
+        return this.dialogService.open(GenericDialogueAlertComponent, {
+          context: {
+            message:
+              "You have reached the available limit of how many games you can create (50). Other players may still invite you to games.",
+          },
         });
+      const player1Ref: AngularFirestoreDocument<User> = this.afs.doc(
+        `users/${p1.uid}`
+      );
+      const increment = firestore.FieldValue.increment(1);
+      player1Ref.update({ createdGames: increment });
 
-        this.router.navigate([`/tictactoe/${(await ticTacToeRef).key}`]);
-      }
+      const ticTacToeRef = this.db.list("tictactoe").push({
+        player1: p1.uid,
+        player2: p2.uid,
+        xIsNext: false,
+        xCounter: 0,
+        oCounter: 0,
+        gameOver: false,
+      });
+
+      this.router.navigate([`/tictactoe/${(await ticTacToeRef).key}`]);
+    } catch (error) {
+      console.error(error);
     }
   }
 
