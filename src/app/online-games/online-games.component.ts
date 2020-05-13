@@ -96,13 +96,15 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
   }
 
   joinUsers(games$: Observable<any>, uidVar: string) {
-    let games;
+    let games: any;
     const joinKeys = {};
 
     return games$.pipe(
       switchMap((g) => {
         games = g;
-        const uids = Array.from(new Set(g.map((v) => v.payload.val()[uidVar])));
+        const uids = Array.from(
+          new Set(g.map((game: any) => game.payload.val()[uidVar]))
+        );
         // Firestore User Doc Reads
         const userDocs = uids.map((u) =>
           this.afs.doc<User>(`users/${u}`).valueChanges()
@@ -110,9 +112,9 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
         return userDocs.length ? combineLatest(userDocs) : of([]);
       }),
       map((arr: any[]) => {
-        arr.forEach((v) => (joinKeys[(<any>v).uid] = v));
-        games = games.map((v) => {
-          return { ...v, user: joinKeys[v.payload.val()[uidVar]] };
+        arr.forEach((user) => (joinKeys[(<any>user).uid] = user));
+        games = games.map((game: any) => {
+          return { ...game, user: joinKeys[game.payload.val()[uidVar]] };
         });
         return games;
       })
