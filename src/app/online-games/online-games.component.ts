@@ -5,7 +5,7 @@ import {
   AngularFirestoreDocument,
 } from "@angular/fire/firestore";
 import { AngularFireDatabase } from "@angular/fire/database";
-import { map, take, debounceTime, flatMap } from "rxjs/operators";
+import { map, take, debounceTime, flatMap, switchMap } from "rxjs/operators";
 import {
   FormBuilder,
   FormGroup,
@@ -13,7 +13,7 @@ import {
   AbstractControl,
 } from "@angular/forms";
 import { NbDialogService } from "@nebular/theme";
-import { Subscription } from "rxjs";
+import { Subscription, Observable, of, combineLatest } from "rxjs";
 import { Router } from "@angular/router";
 import { firestore } from "firebase/app";
 import { DeleteGameComponent } from "../delete-game/delete-game.component";
@@ -35,14 +35,12 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
   emailForm: FormGroup;
   player1: User;
   player2: User;
-  gamesCreated: any;
-  gamesInvitedTo: any;
-  gamesJoined: any;
   private player1Sub: Subscription;
   private player2Sub: Subscription;
   loadedData: boolean = false;
-  profileImage = new Map();
-  profileDisplayName = new Map();
+
+  gamesCreated$: Observable<any>;
+  gamesJoined$: Observable<any>;
 
   constructor(
     private fb: FormBuilder,
@@ -77,95 +75,48 @@ export class OnlineGamesComponent implements OnInit, OnDestroy {
     return this.emailForm.get("email");
   }
 
-  async getActiveGames() {
-    if (!this.loadedData) {
-      const currentUser = await this.afAuth.currentUser;
-      const gamesCreatedQuery = this.db
-        .list("tictactoe", (ref) =>
-          ref.orderByChild("player1").equalTo(currentUser.uid)
-        )
-        .snapshotChanges();
-      gamesCreatedQuery.subscribe(async (data) => {
-        data.forEach((entry) => {
-          const uid = entry.payload.val()["player2"];
-          if (!this.profileImage.has(uid)) {
-            this.profileImage.set(uid, null);
-            this.profileDisplayName.set(uid, null);
-          }
-        });
-        const keys = Array.from(this.profileImage.keys());
-        let lookUp = [];
-        keys.forEach((key) => {
-          if (!this.profileImage.get(key)) {
-            lookUp.push(key);
-          }
-        });
-        if (lookUp.length > 0) {
-          await new Promise((resolve) => {
-            lookUp.forEach((uid) => {
-              this.afs
-                .doc<User>(`users/${uid}`)
-                .valueChanges()
-                .pipe(take(1))
-                .subscribe((user) => {
-                  this.profileImage.set(uid, user.photoURL);
-                  this.profileDisplayName.set(uid, user.displayName);
-                  resolve();
-                });
-            });
-          });
-        }
-        this.gamesCreated = data;
-      });
-      const gamesInvitedToQuery = this.db
-        .list("tictactoe", (ref) =>
-          ref.orderByChild("player2").equalTo(currentUser.uid)
-        )
-        .snapshotChanges();
-      gamesInvitedToQuery.subscribe(async (data) => {
-        data.forEach((entry) => {
-          const uid = entry.payload.val()["player1"];
-          if (!this.profileImage.has(uid)) {
-            this.profileImage.set(uid, null);
-            this.profileDisplayName.set(uid, null);
-          }
-        });
-        const keys = Array.from(this.profileImage.keys());
-        let lookUp = [];
-        keys.forEach((key) => {
-          if (!this.profileImage.get(key)) {
-            lookUp.push(key);
-          }
-        });
-        if (lookUp.length > 0) {
-          await new Promise((resolve) => {
-            lookUp.forEach((uid) => {
-              this.afs
-                .doc<User>(`users/${uid}`)
-                .valueChanges()
-                .pipe(take(1))
-                .subscribe((user) => {
-                  this.profileImage.set(uid, user.photoURL);
-                  let displayName = user.displayName;
-                  let length = 10;
-                  if (innerWidth > 500) {
-                    length = 20;
-                  }
-                  displayName =
-                    displayName.length > length
-                      ? displayName.substring(0, length - 3) + "..."
-                      : displayName;
-                  this.profileDisplayName.set(uid, displayName);
-
-                  resolve();
-                });
-            });
-          });
-        }
-        this.gamesInvitedTo = data;
-      });
-    }
+  async activeGames() {
+    if (this.loadedData) return;
+    const currentUser = await this.afAuth.currentUser;
+    this.gamesCreated$ = this.joinUsers(
+      this.createGameQuery("tictactoe", "player1", currentUser.uid),
+      "player2"
+    );
+    this.gamesJoined$ = this.joinUsers(
+      this.createGameQuery("tictactoe", "player2", currentUser.uid),
+      "player1"
+    );
     this.loadedData = true;
+  }
+
+  createGameQuery(game: string, uidVar: string, uid: string) {
+    return this.db
+      .list(game, (ref) => ref.orderByChild(uidVar).equalTo(uid))
+      .snapshotChanges();
+  }
+
+  joinUsers(games$: Observable<any>, uidVar: string) {
+    let games;
+    const joinKeys = {};
+
+    return games$.pipe(
+      switchMap((g) => {
+        games = g;
+        const uids = Array.from(new Set(g.map((v) => v.payload.val()[uidVar])));
+        // Firestore User Doc Reads
+        const userDocs = uids.map((u) =>
+          this.afs.doc<User>(`users/${u}`).valueChanges()
+        );
+        return userDocs.length ? combineLatest(userDocs) : of([]);
+      }),
+      map((arr: any[]) => {
+        arr.forEach((v) => (joinKeys[(<any>v).uid] = v));
+        games = games.map((v) => {
+          return { ...v, user: joinKeys[v.payload.val()[uidVar]] };
+        });
+        return games;
+      })
+    );
   }
 
   async createGame() {
